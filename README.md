@@ -30,14 +30,14 @@ go get "github.com/gorilla/websocket"
   
 go get "github.com/satori/go.uuid"  
 
-./server/build_lite.sh  
+cd server && ./build_lite.sh && cd ..
 
 
 Demo server serves with raw h.264 files,
 yet that can be easily transfered and connected to RTSP or other sources (h.264 streaming).
 
 ##  Demo
-1. run ./demo/wfs_server  
+1. cd demo && ./wfs_server
 
 2. open a browser e.g. Chrome , 127.0.0.1:8888  
 

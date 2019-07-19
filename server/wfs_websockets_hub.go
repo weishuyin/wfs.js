@@ -3,6 +3,7 @@ package main
  
 import (  
     "github.com/satori/go.uuid"
+    "fmt"
 )
 
 type Hub struct {     
@@ -24,7 +25,10 @@ func newHub() *Hub {
 }
 
 func (h *Hub) setHubConnName( conn *Connection) string {      
-    u1 := uuid.NewV4() 
+    u1, err := uuid.NewV4()
+    if err!= nil {
+        fmt.Println("uuid.NewV4 ERR!!!",err)
+    }
     h.clientsName[conn] = u1.String()
     return u1.String()
 }
