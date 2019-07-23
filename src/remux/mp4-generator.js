@@ -513,7 +513,7 @@ class MP4 {
    * @return {Uint8Array} the track box
    */
   static trak(track) {
-    track.duration = track.duration || 0xffffffff;
+    track.duration = track.duration; // video total duration, track.duration is always 0, means infinity
     return MP4.box(MP4.types.trak, MP4.tkhd(track), MP4.mdia(track));
   }
 

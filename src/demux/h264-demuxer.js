@@ -23,7 +23,7 @@ class h264Demuxer extends EventHandler {
     this.TIMESCALE = 90000; 
     this.timestamp = 0;
     this.scaleFactor = this.TIMESCALE /1000;
-    this.H264_TIMEBASE = 3000;
+    this.H264_TIMEBASE = this.TIMESCALE /this.wfs.config.fps;
     this._avcTrack = {container : 'video/mp2t', type: 'video', id :1, sequenceNumber: 0,
      samples : [], len : 0, nbNalu : 0, dropped : 0, count : 0 };
     this.browserType = 0;
@@ -43,10 +43,11 @@ class h264Demuxer extends EventHandler {
 
   onH264DataParsed(event){ 
     this._parseAVCTrack( event.data); 
-    if (this.browserType === 1 || this._avcTrack.samples.length >= 20){ // Firefox
+    // disable cache on all browser
+    // if (this.browserType === 1 || this._avcTrack.samples.length >= 20){ // Firefox
       this.remuxer.pushVideo(0, this.sn, this._avcTrack, this.timeOffset, this.contiguous);
       this.sn += 1;
-    }
+    // }
   } 
 
   _parseAVCTrack(array) {

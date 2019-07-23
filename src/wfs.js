@@ -44,7 +44,8 @@ class Wfs {
         fragLoadingMaxRetryTimeout: 64000,
         fragLoadingLoopThreshold: 3,
         forceKeyFrameOnDiscontinuity: true,
-        appendErrorMaxRetry: 3
+        appendErrorMaxRetry: 3,
+        fps: 30
       };
     }
     return Wfs.defaultConfig;

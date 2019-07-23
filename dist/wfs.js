@@ -1076,7 +1076,7 @@ var h264Demuxer = function (_EventHandler) {
     _this.TIMESCALE = 90000;
     _this.timestamp = 0;
     _this.scaleFactor = _this.TIMESCALE / 1000;
-    _this.H264_TIMEBASE = 3000;
+    _this.H264_TIMEBASE = _this.TIMESCALE / _this.wfs.config.fps;
     _this._avcTrack = { container: 'video/mp2t', type: 'video', id: 1, sequenceNumber: 0,
       samples: [], len: 0, nbNalu: 0, dropped: 0, count: 0 };
     _this.browserType = 0;
@@ -1101,11 +1101,11 @@ var h264Demuxer = function (_EventHandler) {
     key: 'onH264DataParsed',
     value: function onH264DataParsed(event) {
       this._parseAVCTrack(event.data);
-      if (this.browserType === 1 || this._avcTrack.samples.length >= 20) {
-        // Firefox
-        this.remuxer.pushVideo(0, this.sn, this._avcTrack, this.timeOffset, this.contiguous);
-        this.sn += 1;
-      }
+      // disable cache on all browser
+      // if (this.browserType === 1 || this._avcTrack.samples.length >= 20){ // Firefox
+      this.remuxer.pushVideo(0, this.sn, this._avcTrack, this.timeOffset, this.contiguous);
+      this.sn += 1;
+      // }
     }
   }, {
     key: '_parseAVCTrack',
@@ -2153,7 +2153,7 @@ var MP4 = function () {
   }, {
     key: 'trak',
     value: function trak(track) {
-      track.duration = track.duration || 0xffffffff;
+      track.duration = track.duration; // video total duration, track.duration is always 0, means infinity
       return MP4.box(MP4.types.trak, MP4.tkhd(track), MP4.mdia(track));
     }
   }, {
@@ -2273,7 +2273,7 @@ var MP4Remuxer = function () {
     this.PES_TIMESCALE = 90000;
     this.MP4_TIMESCALE = this.PES_TIMESCALE / this.PES2MP4SCALEFACTOR;
     this.nextAvcDts = 90300;
-    this.H264_TIMEBASE = 3000;
+    this.H264_TIMEBASE = this.PES_TIMESCALE / this.observer.config.fps;
   }
 
   _createClass(MP4Remuxer, [{
@@ -3582,7 +3582,8 @@ var Wfs = function () {
           fragLoadingMaxRetryTimeout: 64000,
           fragLoadingLoopThreshold: 3,
           forceKeyFrameOnDiscontinuity: true,
-          appendErrorMaxRetry: 3
+          appendErrorMaxRetry: 3,
+          fps: 30
         };
       }
       return Wfs.defaultConfig;

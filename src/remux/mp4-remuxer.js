@@ -18,7 +18,7 @@ class MP4Remuxer {
     this.PES_TIMESCALE = 90000;
     this.MP4_TIMESCALE = this.PES_TIMESCALE / this.PES2MP4SCALEFACTOR;
     this.nextAvcDts = 90300;
-    this.H264_TIMEBASE = 3000;
+    this.H264_TIMEBASE = this.PES_TIMESCALE / this.observer.config.fps;
   }
 
   get passthrough() {
