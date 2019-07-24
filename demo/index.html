@@ -21,13 +21,23 @@
 	window.onload = function () {
         if (Wfs.isSupported()) {
         	
-            var video1 = document.getElementById("video1"),
-            wfs = new Wfs({fps:30});
-            wfs.attachMedia(video1,'ch1');
+            var video1 = document.getElementById("video1");
+            var wfs = new Wfs({fps:30});
+            wfs.attachMedia(video1,'H264Raw');
+
+            var websocket = new WebSocket( 'ws://' + window.location.host + '/play2');
+            websocket.onopen = function(e) {
+              this.binaryType = 'arraybuffer';
+              this.send(JSON.stringify({t:"open", c:"ch1", v: "NA"}));
+            }
+            websocket.onclose = function(e) {
+              console.log('Websocket Disconnected!');
+            };
+            websocket.onmessage = function(e) {
+              wfs.receiveSocketMessage(e.data);
+            }
         }
     };
-
- 
     </script>
 	
 </body>

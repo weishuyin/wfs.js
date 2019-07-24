@@ -354,9 +354,6 @@ var BufferController = function (_EventHandler) {
       _this.browserType = 1;
     }
     _this.mediaType = 'H264Raw';
-
-    _this.websocketName = undefined;
-    _this.channelName = undefined;
     return _this;
   }
 
@@ -370,8 +367,6 @@ var BufferController = function (_EventHandler) {
     value: function onMediaAttaching(data) {
       var media = this.media = data.media;
       this.mediaType = data.mediaType;
-      this.websocketName = data.websocketName;
-      this.channelName = data.channelName;
       if (media) {
         // setup the media source
         var ms = this.mediaSource = new MediaSource();
@@ -437,8 +432,6 @@ var BufferController = function (_EventHandler) {
       if (this.mediaType === 'FMp4') {
         this.checkPendingTracks();
       }
-
-      this.wfs.trigger(_events2.default.MEDIA_ATTACHED, { media: this.media, channelName: this.channelName, mediaType: this.mediaType, websocketName: this.websocketName });
     }
   }, {
     key: 'checkPendingTracks',
@@ -569,13 +562,12 @@ var FlowController = function (_EventHandler) {
   function FlowController(wfs) {
     _classCallCheck(this, FlowController);
 
-    var _this = _possibleConstructorReturn(this, (FlowController.__proto__ || Object.getPrototypeOf(FlowController)).call(this, wfs, _events2.default.MEDIA_ATTACHED, _events2.default.BUFFER_CREATED, _events2.default.FILE_PARSING_DATA, _events2.default.FILE_HEAD_LOADED, _events2.default.FILE_DATA_LOADED, _events2.default.WEBSOCKET_ATTACHED, _events2.default.FRAG_PARSING_DATA, _events2.default.FRAG_PARSING_INIT_SEGMENT));
+    var _this = _possibleConstructorReturn(this, (FlowController.__proto__ || Object.getPrototypeOf(FlowController)).call(this, wfs, _events2.default.BUFFER_CREATED, _events2.default.FILE_PARSING_DATA, _events2.default.FILE_HEAD_LOADED, _events2.default.FILE_DATA_LOADED, _events2.default.WEBSOCKET_ATTACHED, _events2.default.FRAG_PARSING_DATA, _events2.default.FRAG_PARSING_INIT_SEGMENT));
 
     _this.fileStart = 0;
     _this.fileEnd = 0;
     _this.pendingAppending = 0;
     _this.mediaType = undefined;
-    channelName: _this.channelName;
     return _this;
   }
 
@@ -583,16 +575,6 @@ var FlowController = function (_EventHandler) {
     key: 'destroy',
     value: function destroy() {
       _eventHandler2.default.prototype.destroy.call(this);
-    }
-  }, {
-    key: 'onMediaAttached',
-    value: function onMediaAttached(data) {
-      if (data.websocketName != undefined) {
-        var client = new WebSocket('ws://' + window.location.host + '/' + data.websocketName);
-        this.wfs.attachWebsocket(client, data.channelName);
-      } else {
-        console.log('websocketName ERROE!!!');
-      }
     }
   }, {
     key: 'onBufferCreated',
@@ -1512,8 +1494,6 @@ module.exports = {
 
   MEDIA_ATTACHING: 'wfsMediaAttaching',
 
-  MEDIA_ATTACHED: 'wfsMediaAttached',
-
   FRAG_LOADING: 'wfsFragLoading',
 
   BUFFER_CREATED: 'wfsBufferCreated',
@@ -1532,11 +1512,6 @@ module.exports = {
   //------------------------------------------
   WEBSOCKET_ATTACHED: 'wfsWebsocketAttached',
 
-  WEBSOCKET_ATTACHING: 'wfsWebsocketAttaching',
-
-  WEBSOCKET_DATA_UPLOADING: 'wfsWebsocketDataUploading',
-
-  WEBSOCKET_MESSAGE_SENDING: 'wfsWebsocketMessageSending',
   //------------------------------------------
   FILE_HEAD_LOADING: 'wfsFileHeadLoading',
 
@@ -1641,65 +1616,32 @@ var WebsocketLoader = function (_EventHandler) {
   function WebsocketLoader(wfs) {
     _classCallCheck(this, WebsocketLoader);
 
-    var _this = _possibleConstructorReturn(this, (WebsocketLoader.__proto__ || Object.getPrototypeOf(WebsocketLoader)).call(this, wfs, _events2.default.WEBSOCKET_ATTACHING, _events2.default.WEBSOCKET_DATA_UPLOADING, _events2.default.WEBSOCKET_MESSAGE_SENDING));
+    var _this = _possibleConstructorReturn(this, (WebsocketLoader.__proto__ || Object.getPrototypeOf(WebsocketLoader)).call(this, wfs));
 
+    _this.wfs = wfs;
     _this.buf = null;
     _this.slicesReader = new _h264NalSlicesreader2.default(wfs);
-    _this.mediaType = undefined;
-    _this.channelName = undefined;
     return _this;
   }
 
   _createClass(WebsocketLoader, [{
     key: 'destroy',
     value: function destroy() {
-      !!this.client && this.client.close();
       this.slicesReader.destroy();
       _eventHandler2.default.prototype.destroy.call(this);
     }
   }, {
-    key: 'onWebsocketAttaching',
-    value: function onWebsocketAttaching(data) {
-      this.mediaType = data.mediaType;
-      this.channelName = data.channelName;
-      if (data.websocket instanceof WebSocket) {
-        this.client = data.websocket;
-        this.client.onopen = this.initSocketClient.bind(this);
-        this.client.onclose = function (e) {
-          console.log('Websocket Disconnected!');
-        };
-      }
-    }
-  }, {
-    key: 'initSocketClient',
-    value: function initSocketClient(client) {
-      this.client.binaryType = 'arraybuffer';
-      this.client.onmessage = this.receiveSocketMessage.bind(this);
-      this.wfs.trigger(_events2.default.WEBSOCKET_MESSAGE_SENDING, { commandType: "open", channelName: this.channelName, commandValue: "NA" });
-      console.log('Websocket Open!');
-    }
-  }, {
     key: 'receiveSocketMessage',
-    value: function receiveSocketMessage(event) {
-      this.buf = new Uint8Array(event.data);
+    value: function receiveSocketMessage(data) {
+      this.buf = new Uint8Array(data);
       var copy = new Uint8Array(this.buf);
 
-      if (this.mediaType === 'FMp4') {
+      if (this.wfs.mediaType === 'FMp4') {
         this.wfs.trigger(_events2.default.WEBSOCKET_ATTACHED, { payload: copy });
       }
-      if (this.mediaType === 'H264Raw') {
+      if (this.wfs.mediaType === 'H264Raw') {
         this.wfs.trigger(_events2.default.H264_DATA_PARSING, { data: copy });
       }
-    }
-  }, {
-    key: 'onWebsocketDataUploading',
-    value: function onWebsocketDataUploading(event) {
-      this.client.send(event.data);
-    }
-  }, {
-    key: 'onWebsocketMessageSending',
-    value: function onWebsocketMessageSending(event) {
-      this.client.send(JSON.stringify({ t: event.commandType, c: event.channelName, v: event.commandValue }));
     }
   }]);
 
@@ -3645,18 +3587,16 @@ var Wfs = function () {
   }, {
     key: 'attachMedia',
     value: function attachMedia(media) {
-      var channelName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'chX';
-      var mediaType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'H264Raw';
-      var websocketName = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'play2';
-      // 'H264Raw' 'FMp4'    
+      var mediaType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'H264Raw';
+      // 'H264Raw' 'FMp4'
       this.mediaType = mediaType;
       this.media = media;
-      this.trigger(_events2.default.MEDIA_ATTACHING, { media: media, channelName: channelName, mediaType: mediaType, websocketName: websocketName });
+      this.trigger(_events2.default.MEDIA_ATTACHING, { media: media, mediaType: mediaType });
     }
   }, {
-    key: 'attachWebsocket',
-    value: function attachWebsocket(websocket, channelName) {
-      this.trigger(_events2.default.WEBSOCKET_ATTACHING, { websocket: websocket, mediaType: this.mediaType, channelName: channelName });
+    key: 'receiveSocketMessage',
+    value: function receiveSocketMessage(data) {
+      this.websocketLoader.receiveSocketMessage(data);
     }
   }]);
 

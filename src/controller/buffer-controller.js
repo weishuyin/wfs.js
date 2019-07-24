@@ -31,9 +31,6 @@ class BufferController extends EventHandler {
       this.browserType = 1;
     }
     this.mediaType = 'H264Raw';
-
-    this.websocketName = undefined; 
-    this.channelName = undefined;
   }
 
   destroy() {
@@ -43,8 +40,6 @@ class BufferController extends EventHandler {
   onMediaAttaching(data) {
     let media = this.media = data.media;
     this.mediaType = data.mediaType;
-    this.websocketName = data.websocketName;
-    this.channelName = data.channelName;
     if (media) {
       // setup the media source
       var ms = this.mediaSource = new MediaSource();
@@ -108,8 +103,6 @@ class BufferController extends EventHandler {
     if (this.mediaType === 'FMp4'){ 
       this.checkPendingTracks();
     }
-
-    this.wfs.trigger(Event.MEDIA_ATTACHED, {media:this.media, channelName:this.channelName, mediaType: this.mediaType, websocketName:this.websocketName});
   }
 
   checkPendingTracks() {  

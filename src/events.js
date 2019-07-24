@@ -2,8 +2,6 @@ module.exports = {
  
   MEDIA_ATTACHING: 'wfsMediaAttaching',  
  
-  MEDIA_ATTACHED: 'wfsMediaAttached',
- 
   FRAG_LOADING: 'wfsFragLoading',
 
   BUFFER_CREATED: 'wfsBufferCreated', 
@@ -22,11 +20,6 @@ module.exports = {
 //------------------------------------------
   WEBSOCKET_ATTACHED: 'wfsWebsocketAttached',
 
-  WEBSOCKET_ATTACHING: 'wfsWebsocketAttaching',
-
-  WEBSOCKET_DATA_UPLOADING: 'wfsWebsocketDataUploading',
-
-  WEBSOCKET_MESSAGE_SENDING: 'wfsWebsocketMessageSending',   
 //------------------------------------------
   FILE_HEAD_LOADING: 'wfsFileHeadLoading',
 

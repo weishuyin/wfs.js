@@ -9,7 +9,6 @@ class FlowController extends EventHandler {
 
   constructor(wfs) {
     super(wfs,
-      Event.MEDIA_ATTACHED,
       Event.BUFFER_CREATED,
       Event.FILE_PARSING_DATA,
       Event.FILE_HEAD_LOADED,
@@ -22,22 +21,11 @@ class FlowController extends EventHandler {
     this.fileEnd = 0;
     this.pendingAppending = 0;
     this.mediaType = undefined; 
-    channelName:this.channelName;
   }
 
   destroy() {
      EventHandler.prototype.destroy.call(this);
   }  
-
-  onMediaAttached(data) {      
-    if (data.websocketName != undefined){
-      var client = new WebSocket( 'ws://' + window.location.host + '/' +  data.websocketName );
-      this.wfs.attachWebsocket(client,data.channelName);
-    }else{
-       console.log('websocketName ERROE!!!');
-    }
-
-  }
   
   onBufferCreated(data) {
     this.mediaType = data.mediaType; 
