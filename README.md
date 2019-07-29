@@ -5,6 +5,10 @@
 4. adjustable fps, default to 30fps
 5. independent websocket
 
+If you see the follow error in debug console, please exec wfs.attachMedia earlier.
+createSourceBuffers failed DOMException: Failed to execute 'addSourceBuffer' on 'MediaSource': The MediaSource's readyState is not 'open'.
+
+
 ## Commands for generate your .264 file
 mp4 to h264: ffmpeg -i test.mp4 -an -c:v libx264 -preset slow -profile:v baseline -crf 1 test.h264
 
