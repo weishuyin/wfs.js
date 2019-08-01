@@ -148,11 +148,11 @@ class MP4Remuxer {
     track.len = 0;
     track.nbNalu = 0;
     track.dropped = 0;
-    if(outputSamples.length && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-      let flags = outputSamples[0].flags; 
-      flags.dependsOn = 2;
-      flags.isNonSync = 0;
-    }
+    // if(outputSamples.length && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+    //   let flags = outputSamples[0].flags; 
+    //   flags.dependsOn = 2;
+    //   flags.isNonSync = 0;
+    // }
     track.samples = outputSamples; 
     moof = MP4.moof(track.sequenceNumber++, dtsnorm  , track);
     track.samples = [];
@@ -499,13 +499,13 @@ class MP4Remuxer {
     track.len = 0;
     track.nbNalu = 0;
     track.dropped = 0;
-    if(outputSamples.length && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-      let flags = outputSamples[0].flags;
-    // chrome workaround, mark first sample as being a Random Access Point to avoid sourcebuffer append issue
-    // https://code.google.com/p/chromium/issues/detail?id=229412
-      flags.dependsOn = 2;
-      flags.isNonSync = 0;
-    }
+    // if(outputSamples.length && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+    //   let flags = outputSamples[0].flags;
+    // // chrome workaround, mark first sample as being a Random Access Point to avoid sourcebuffer append issue
+    // // https://code.google.com/p/chromium/issues/detail?id=229412
+    //   flags.dependsOn = 2;
+    //   flags.isNonSync = 0;
+    // }
     track.samples = outputSamples;
     moof = MP4.moof(track.sequenceNumber++, firstDTS / pes2mp4ScaleFactor, track);
     track.samples = [];
