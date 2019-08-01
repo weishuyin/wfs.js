@@ -12,17 +12,25 @@
    <script type="text/javascript" src="/dist/wfs.js" ></script>  
   
    <div class="wfsjs">
+   <!--
+   1. Firefox上无法通过javascript下载dataurl文件: https://blog.mozilla.org/security/2017/11/27/blocking-top-level-navigations-data-urls-firefox-59/
+   2. Chrome上无法使用dataurl下载大文件: https://stackoverflow.com/questions/38781968/problems-downloading-big-filemax-15-mb-on-google-chrome
+   -->
+   <input type="button" value="download" onclick="downloadBlob()"/>
+   <a href="" download="wfsjs.mp4" id="a"></a>
+   <br>
    <video id="video1"  width="640" height="480" controls autoplay muted></video>
    <div class="ratio"></div>
    </div>
  
     <script>
  
+  var wfs = null;
 	window.onload = function () {
         if (Wfs.isSupported()) {
         	
             var video1 = document.getElementById("video1");
-            var wfs = new Wfs({fps:30});
+            wfs = new Wfs({fps:30});
             wfs.attachMedia(video1,'H264Raw');
 
             var websocket = new WebSocket( 'ws://' + window.location.host + '/play2');
@@ -38,6 +46,14 @@
             }
         }
     };
+
+    function downloadBlob() {
+      var blob = new Blob([wfs.mp4buffer.buffer], {type:'application/octet-stream'});
+      var url = URL.createObjectURL(blob);
+      var a = document.querySelector('#a');
+      a.href = url;
+      a.click();
+    }
     </script>
 	
 </body>

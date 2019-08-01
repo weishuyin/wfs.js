@@ -94,6 +94,8 @@ class Wfs {
     this.mediaType = mediaType; 
     this.media = media;
     this.trigger(Event.MEDIA_ATTACHING, {media:media, mediaType:mediaType});
+
+    this.mp4buffer = new Uint8Array();
   }
 
   receiveSocketMessage(data) {

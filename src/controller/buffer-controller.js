@@ -136,6 +136,13 @@ class BufferController extends EventHandler {
     this.media.play();    
   }
 
+  appendMp4buffer(data) {
+    let oldBuf = this.wfs.mp4buffer;
+    this.wfs.mp4buffer = new Uint8Array(oldBuf.byteLength + data.byteLength);
+    this.wfs.mp4buffer.set(oldBuf);
+    this.wfs.mp4buffer.set(data, oldBuf.byteLength);
+  }
+
   doAppending() {
    
     var wfs = this.wfs, sourceBuffer = this.sourceBuffer, segments = this.segments;
@@ -156,6 +163,7 @@ class BufferController extends EventHandler {
           if(sourceBuffer[segment.type]) { 
             this.parent = segment.parent;
             sourceBuffer[segment.type].appendBuffer(segment.data);
+            this.appendMp4buffer(segment.data);
             this.appendError = 0;
             this.appended++;
             this.appending = true;

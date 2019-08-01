@@ -467,6 +467,14 @@ var BufferController = function (_EventHandler) {
       this.media.play();
     }
   }, {
+    key: 'appendMp4buffer',
+    value: function appendMp4buffer(data) {
+      var oldBuf = this.wfs.mp4buffer;
+      this.wfs.mp4buffer = new Uint8Array(oldBuf.byteLength + data.byteLength);
+      this.wfs.mp4buffer.set(oldBuf);
+      this.wfs.mp4buffer.set(data, oldBuf.byteLength);
+    }
+  }, {
     key: 'doAppending',
     value: function doAppending() {
 
@@ -490,6 +498,7 @@ var BufferController = function (_EventHandler) {
             if (sourceBuffer[segment.type]) {
               this.parent = segment.parent;
               sourceBuffer[segment.type].appendBuffer(segment.data);
+              this.appendMp4buffer(segment.data);
               this.appendError = 0;
               this.appended++;
               this.appending = true;
@@ -3592,6 +3601,8 @@ var Wfs = function () {
       this.mediaType = mediaType;
       this.media = media;
       this.trigger(_events2.default.MEDIA_ATTACHING, { media: media, mediaType: mediaType });
+
+      this.mp4buffer = new Uint8Array();
     }
   }, {
     key: 'receiveSocketMessage',
