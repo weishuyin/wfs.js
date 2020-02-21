@@ -498,7 +498,7 @@ var BufferController = function (_EventHandler) {
             if (sourceBuffer[segment.type]) {
               this.parent = segment.parent;
               sourceBuffer[segment.type].appendBuffer(segment.data);
-              this.appendMp4buffer(segment.data);
+              // this.appendMp4buffer(segment.data);
               this.appendError = 0;
               this.appended++;
               this.appending = true;
