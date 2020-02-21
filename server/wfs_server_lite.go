@@ -36,6 +36,7 @@ type Connection struct {
 var fo *os.File
 var gConn *Connection
 var gHub *Hub 
+var repeart int64 = 3
 
 func indexHandler(w http.ResponseWriter, r *http.Request) { 
     t, err := template.ParseFiles("./index.html")
@@ -126,9 +127,10 @@ func (conn *Connection) appReadCommand2() {
 func (conn *Connection) app264Streaming() {       
     offs := 1000000 // 4144399   
     totalSize := retrieveFileSize( conn.file264DataName )  
-    var i,j int64  
+    var i,j,k int64
     i = 0 
     j = totalSize
+    k = 0
     tick := time.NewTicker(time.Millisecond * 30)
     flag := true    
     for {
@@ -153,7 +155,15 @@ func (conn *Connection) app264Streaming() {
                     if j < int64(offs){
                         offs = int(j)
                     } 
-                } 
+                } else {
+                    if k < repeart - 1{
+                        k = k + 1
+
+                        offs = 1000000
+                        i = 0
+                        j = totalSize
+                    }
+                }
         }
         if !flag {
             break
