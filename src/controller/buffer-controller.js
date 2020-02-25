@@ -4,6 +4,7 @@
 
 import Event from '../events';
 import EventHandler from '../event-handler';
+import {ErrorTypes, ErrorDetails} from '../errors';
  
 class BufferController extends EventHandler {
 

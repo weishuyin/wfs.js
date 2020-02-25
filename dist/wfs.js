@@ -319,6 +319,8 @@ var _eventHandler = require('../event-handler');
 
 var _eventHandler2 = _interopRequireDefault(_eventHandler);
 
+var _errors = require('../errors');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -506,14 +508,14 @@ var BufferController = function (_EventHandler) {
           } catch (err) {
             // in case any error occured while appending, put back segment in segments table 
             segments.unshift(segment);
-            var event = { type: ErrorTypes.MEDIA_ERROR };
+            var event = { type: _errors.ErrorTypes.MEDIA_ERROR };
             if (err.code !== 22) {
               if (this.appendError) {
                 this.appendError++;
               } else {
                 this.appendError = 1;
               }
-              event.details = ErrorDetails.BUFFER_APPEND_ERROR;
+              event.details = _errors.ErrorDetails.BUFFER_APPEND_ERROR;
               event.frag = this.fragCurrent;
               if (this.appendError > wfs.config.appendErrorMaxRetry) {
                 segments = [];
@@ -524,7 +526,7 @@ var BufferController = function (_EventHandler) {
               }
             } else {
               this.segments = [];
-              event.details = ErrorDetails.BUFFER_FULL_ERROR;
+              event.details = _errors.ErrorDetails.BUFFER_FULL_ERROR;
               return;
             }
           }
@@ -538,7 +540,7 @@ var BufferController = function (_EventHandler) {
 
 exports.default = BufferController;
 
-},{"../event-handler":7,"../events":8}],3:[function(require,module,exports){
+},{"../errors":6,"../event-handler":7,"../events":8}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
