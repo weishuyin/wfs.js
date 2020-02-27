@@ -193,6 +193,7 @@ class BufferController extends EventHandler {
           } else { 
             this.segments = [];
             event.details = ErrorDetails.BUFFER_FULL_ERROR; 
+            console.log("buffer full flag === true")
             return;
           } 
         }

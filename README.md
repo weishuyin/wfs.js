@@ -1,16 +1,25 @@
 ## Modified by treewei
-1. remove unused yyyyyyy.txt
-2. remove video samples cache, for realtime play
-3. infinity video stream duration, no more fixed to 13h
-4. adjustable fps, default to 30fps
-5. independent websocket
+1. remove video samples cache, for realtime play
+2. infinity video stream duration, no more fixed to 13h
+3. adjustable fps, default to 30fps. Set fps a little higher than h264 stream to avoid video delay
+4. independent websocket
+5. do not push video data when switch to other tab when using chrome
 
 If you see the follow error in debug console, please exec wfs.attachMedia earlier.
 createSourceBuffers failed DOMException: Failed to execute 'addSourceBuffer' on 'MediaSource': The MediaSource's readyState is not 'open'.
 
+In my case, realtime video is autoplay, which will be paused when switch to other tab, do not push video data when paused. 
+http://www.thesempost.com/google-chrome-restricting-autoplay-video-to-current-tab-only/
+
+For realtime playing, SourceBuffer will free up space if needed.
+For not realtime playing, if buffering more than 150M(from video.currentTime to newest buffered data) on chrome, we will get QuotaExceededError.
+https://stackoverflow.com/questions/23871750/where-does-media-source-buffer-data-go
+https://developers.google.com/web/updates/2017/10/quotaexceedederror
 
 ## Commands for generate your .264 file
 mp4 to h264: ffmpeg -i test.mp4 -an -c:v libx264 -preset slow -profile:v baseline -crf 1 test.h264
+
+ffprobe yyyyyyy.264 -show_frames | grep pkt_size | awk '{ print substr($1,10,length($1)) }' > yyyyyyy.txt
 
 h264 to mp4: ffmpeg -framerate 30 -i test.h264 -c copy output.mp4
 

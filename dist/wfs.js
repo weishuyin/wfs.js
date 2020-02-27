@@ -527,6 +527,7 @@ var BufferController = function (_EventHandler) {
             } else {
               this.segments = [];
               event.details = _errors.ErrorDetails.BUFFER_FULL_ERROR;
+              console.log("buffer full flag === true");
               return;
             }
           }
@@ -1061,6 +1062,7 @@ var h264Demuxer = function (_EventHandler) {
     _this.config = _this.wfs.config || config;
     _this.wfs = wfs;
     _this.id = 'main';
+    _this.keepParsing = true;
 
     _this.remuxer = new _mp4Remuxer2.default(_this.wfs, _this.id, _this.config);
     _this.contiguous = true;
@@ -1120,11 +1122,26 @@ var h264Demuxer = function (_EventHandler) {
       var pushAccesUnit = function () {
         if (units2.length) {
           if (!this.config.forceKeyFrameOnDiscontinuity || key === true || track.sps && (samples.length || this.contiguous)) {
-            var tss = this.getTimestampM();
-            avcSample = { units: { units: units2, length: length }, pts: tss, dts: tss, key: key };
-            samples.push(avcSample);
-            track.len += length;
-            track.nbNalu += units2.length;
+
+            if (document.hidden === true && this.keepParsing === true) {
+              if (key === true && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                this.keepParsing = false;
+                console.log("wfs.js paused");
+              }
+            }
+            if (document.hidden === false && this.keepParsing == false) {
+              if (key === true) {
+                this.keepParsing = true;
+                console.log("wfs.js resumed");
+              }
+            }
+            if (this.keepParsing === true) {
+              var tss = this.getTimestampM();
+              avcSample = { units: { units: units2, length: length }, pts: tss, dts: tss, key: key };
+              samples.push(avcSample);
+              track.len += length;
+              track.nbNalu += units2.length;
+            }
           } else {
             track.dropped++;
           }

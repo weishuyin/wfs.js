@@ -14,6 +14,8 @@ import (
     "time"
     "os"
     "runtime"
+    "bufio"
+    "strconv" 
     "encoding/json" 
 )
  
@@ -36,7 +38,6 @@ type Connection struct {
 var fo *os.File
 var gConn *Connection
 var gHub *Hub 
-var repeart int64 = 3
 
 func indexHandler(w http.ResponseWriter, r *http.Request) { 
     t, err := template.ParseFiles("./index.html")
@@ -109,28 +110,30 @@ func (conn *Connection) appReadCommand2() {
              fmt.Println("appReadCommand--> ",u["t"].(string), u["v"].(string) , u["c"].(string))
 
             if u["c"].(string) =="ch1"{
+            conn.fileMP4DataName = "yyyyyyy.264"
             conn.file264DataName = "yyyyyyy.264"
             conn.file264SizeName = "yyyyyyy.txt"
            }
 
            if u["c"].(string) =="ch2"{
+            conn.fileMP4DataName = "yyyyyyy.264"
             conn.file264DataName = "yyyyyyy.264"
             conn.file264SizeName = "yyyyyyy.txt"
            }
-            go conn.app264Streaming()
+            // go conn.app264Streaming()
+            go conn.appMP4Streaming()
         }
    
     }
     conn.ws.Close()
 }
-
-func (conn *Connection) app264Streaming() {       
+ 
+func (conn *Connection) appMP4Streaming() {       
     offs := 1000000 // 4144399   
-    totalSize := retrieveFileSize( conn.file264DataName )  
-    var i,j,k int64
+    totalSize := retrieveFileSize( conn.fileMP4DataName )  
+    var i,j int64  
     i = 0 
     j = totalSize
-    k = 0
     tick := time.NewTicker(time.Millisecond * 30)
     flag := true    
     for {
@@ -138,7 +141,7 @@ func (conn *Connection) app264Streaming() {
             case <-tick.C:
             
                 if i < totalSize{
-                    b, _, _ := retrieveFileData( conn.file264DataName, offs, i)                 
+                    b, _, _ := retrieveFileData( conn.fileMP4DataName, offs, i)                 
                     //------------------------------------------        
                     smallArray := make([]byte,offs)
                     copy(smallArray[:],  b[0:offs] ) 
@@ -155,15 +158,7 @@ func (conn *Connection) app264Streaming() {
                     if j < int64(offs){
                         offs = int(j)
                     } 
-                } else {
-                    if k < repeart - 1{
-                        k = k + 1
-
-                        offs = 1000000
-                        i = 0
-                        j = totalSize
-                    }
-                }
+                } 
         }
         if !flag {
             break
@@ -171,7 +166,96 @@ func (conn *Connection) app264Streaming() {
         runtime.Gosched()
     }     
 }
+ 
+func parseAVCNALu(array []byte) int { 
+  arrayLen := len(array)
+  i := 0
+  state := 0
+  count := 0
+  for i < arrayLen {
+    value := array[i];
+    i += 1
+    // finding 3 or 4-byte start codes (00 00 01 OR 00 00 00 01)
+    switch state {
+      case 0:
+        if value == 0 {
+          state = 1              
+        }   
+      case 1:
+        if value == 0 {
+          state = 2            
+        } else {
+          state = 0
+        }        
+      case 2,3:        
+        if value == 0 {
+          state = 3           
+        } else if value == 1 && i < arrayLen {
+          unitType := array[i] & 0x1f         
+          if unitType == 7 || unitType == 8{
+              count += 1
+          } 
+            state = 0
+          } else {
+            state = 0
+          }    
+      }       
+    } 
+  return count
+}
 
+func (conn *Connection) app264Streaming() {    
+    
+    var fileStart int64
+    fileStart = 0
+    file, err := os.Open(conn.file264SizeName)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+    scanner := bufio.NewScanner(file)
+ 
+    tick := time.NewTicker(time.Millisecond * 30)
+    flag := true 
+ 
+    for {
+        select {
+            case <-tick.C: 
+                if scanner.Scan() {                    
+                    offs, _ := strconv.ParseInt(scanner.Text(), 10, 0)
+                    off := int(offs)
+                    b, _, _ := retrieveFileData( conn.file264DataName, off, fileStart)              
+                    sendFlag := true 
+                   //------------------------------------------        
+                    smallArray := make([]byte,off)
+                    copy(smallArray[:],  b[0:off] )    
+                    if off < 100 {
+                      count := parseAVCNALu(smallArray)
+                      if count > 2 { // 7 7 8 , 7 8 7 
+                        sendFlag = false
+                      }
+                    }   
+                    if sendFlag {  
+                      err := conn.ws.WriteMessage(2,  smallArray)               
+                      if err != nil {
+                        fmt.Printf("conn.WriteMessage ERROR!!!\n")
+                        flag = false
+                        break
+                      }
+                    }
+                    smallArray = nil 
+                   //----------------------------------------- 
+                    fileStart += offs
+                } 
+        }
+        if !flag {
+            break
+        }
+
+        runtime.Gosched()
+    }     
+}
+  
 func play2(w http.ResponseWriter, r *http.Request) { 
  
     ws, err := upgrader.Upgrade(w, r, nil)

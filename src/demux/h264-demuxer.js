@@ -15,6 +15,7 @@ class h264Demuxer extends EventHandler {
     this.config = this.wfs.config || config;
     this.wfs = wfs;
     this.id = 'main';
+    this.keepParsing = true;
  
     this.remuxer = new MP4Remuxer(this.wfs, this.id , this.config);   
     this.contiguous = true; 
@@ -68,11 +69,26 @@ class h264Demuxer extends EventHandler {
         if (!this.config.forceKeyFrameOnDiscontinuity ||
             key === true ||
             (track.sps && (samples.length || this.contiguous))) { 
-          var tss = this.getTimestampM();
-          avcSample = {units: { units : units2, length : length}, pts: tss, dts: tss, key: key};
-          samples.push(avcSample);
-          track.len += length;
-          track.nbNalu += units2.length;
+
+          if (document.hidden === true && this.keepParsing === true) {
+            if (key === true && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+              this.keepParsing = false;
+              console.log("wfs.js paused");
+            }
+          }
+          if (document.hidden === false && this.keepParsing == false) {
+            if (key === true) {
+              this.keepParsing = true;
+              console.log("wfs.js resumed");
+            }
+          }
+          if (this.keepParsing === true) {
+            var tss = this.getTimestampM();
+            avcSample = {units: { units : units2, length : length}, pts: tss, dts: tss, key: key};
+            samples.push(avcSample);
+            track.len += length;
+            track.nbNalu += units2.length;
+          }
         } else { 
           track.dropped++;
         }
