@@ -1919,7 +1919,7 @@ var MP4 = function () {
   }, {
     key: 'mvhd',
     value: function mvhd(timescale, duration) {
-      duration *= timescale;
+      duration = 0;
       var bytes = new Uint8Array([0x00, // version 0
       0x00, 0x00, 0x00, // flags
       0x00, 0x00, 0x00, 0x01, // creation_time

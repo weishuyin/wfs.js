@@ -8,6 +8,9 @@
 If you see the follow error in debug console, please exec wfs.attachMedia earlier.
 createSourceBuffers failed DOMException: Failed to execute 'addSourceBuffer' on 'MediaSource': The MediaSource's readyState is not 'open'.
 
+Set mvhd.duration = 0 to get Chrome to enter its "low delay" mode:
+https://stackoverflow.com/questions/36364943/frame-by-frame-decode-using-media-source-extension
+
 In my case, realtime video is autoplay, which will be paused when switch to other tab, do not push video data when paused. 
 http://www.thesempost.com/google-chrome-restricting-autoplay-video-to-current-tab-only/
 
