@@ -1124,7 +1124,7 @@ var h264Demuxer = function (_EventHandler) {
           if (!this.config.forceKeyFrameOnDiscontinuity || key === true || track.sps && (samples.length || this.contiguous)) {
 
             if (document.hidden === true && this.keepParsing === true) {
-              if (key === true && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+              if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
                 this.keepParsing = false;
                 console.log("wfs.js paused");
               }
