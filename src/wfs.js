@@ -45,7 +45,8 @@ class Wfs {
         fragLoadingLoopThreshold: 3,
         forceKeyFrameOnDiscontinuity: true,
         appendErrorMaxRetry: 3,
-        fps: 30
+        fps: 30,
+        paused: false,
       };
     }
     return Wfs.defaultConfig;

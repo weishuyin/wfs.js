@@ -32,6 +32,14 @@
             var video1 = document.getElementById("video1");
             wfs = new Wfs({fps:30});
             wfs.attachMedia(video1,'H264Raw');
+            video1.addEventListener("pause", function() {
+              console.log("onPause");
+              wfs.config.paused = true;
+            }, true);
+            video1.addEventListener("play", function() {
+              console.log("onPlay");
+              wfs.config.paused = false;
+            }, true);
 
             var websocket = new WebSocket( 'ws://' + window.location.host + '/play2');
             websocket.onopen = function(e) {

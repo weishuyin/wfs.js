@@ -1123,13 +1123,11 @@ var h264Demuxer = function (_EventHandler) {
         if (units2.length) {
           if (!this.config.forceKeyFrameOnDiscontinuity || key === true || track.sps && (samples.length || this.contiguous)) {
 
-            if (document.hidden === true && this.keepParsing === true) {
-              if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-                this.keepParsing = false;
-                console.log("wfs.js paused");
-              }
+            if (this.wfs.config.paused === true && this.keepParsing === true) {
+              this.keepParsing = false;
+              console.log("wfs.js paused");
             }
-            if (document.hidden === false && this.keepParsing == false) {
+            if (this.wfs.config.paused === false && this.keepParsing == false) {
               if (key === true) {
                 this.keepParsing = true;
                 console.log("wfs.js resumed");
@@ -3553,7 +3551,8 @@ var Wfs = function () {
           fragLoadingLoopThreshold: 3,
           forceKeyFrameOnDiscontinuity: true,
           appendErrorMaxRetry: 3,
-          fps: 30
+          fps: 30,
+          paused: false
         };
       }
       return Wfs.defaultConfig;

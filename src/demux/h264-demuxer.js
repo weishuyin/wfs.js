@@ -70,13 +70,11 @@ class h264Demuxer extends EventHandler {
             key === true ||
             (track.sps && (samples.length || this.contiguous))) { 
 
-          if (document.hidden === true && this.keepParsing === true) {
-            if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-              this.keepParsing = false;
-              console.log("wfs.js paused");
-            }
+          if (this.wfs.config.paused === true && this.keepParsing === true) {
+            this.keepParsing = false;
+            console.log("wfs.js paused");
           }
-          if (document.hidden === false && this.keepParsing == false) {
+          if (this.wfs.config.paused === false && this.keepParsing == false) {
             if (key === true) {
               this.keepParsing = true;
               console.log("wfs.js resumed");
