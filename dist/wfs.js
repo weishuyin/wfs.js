@@ -1125,12 +1125,12 @@ var h264Demuxer = function (_EventHandler) {
 
             if (this.wfs.config.paused === true && this.keepParsing === true) {
               this.keepParsing = false;
-              console.log("wfs.js paused");
+              console.log(this.wfs.media.id + " paused");
             }
             if (this.wfs.config.paused === false && this.keepParsing == false) {
               if (key === true) {
                 this.keepParsing = true;
-                console.log("wfs.js resumed");
+                console.log(this.wfs.media.id + " resumed");
               }
             }
             if (this.keepParsing === true) {
